@@ -1,0 +1,457 @@
+/* REPORT-MASTER PRO - Elite Industrial Glassmorphism Theme */
+
+:root {
+    --bg-main: #05070A;
+    --panel-bg: #0F172A;
+    --text-main: #E2E8F0;
+    --accent-teal: #00F2FF;
+    --accent-indigo: #6366F1;
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --input-bg: #0F172A;
+}
+
+body.light-mode {
+    --bg-main: #F8FAFC;
+    --panel-bg: #FFFFFF;
+    --text-main: #1E293B;
+    --accent-teal: #0D9488;
+    --accent-indigo: #4F46E5;
+    --glass-border: rgba(0, 0, 0, 0.1);
+    --input-bg: #F1F5F9;
+    background-color: #F8FAFC !important;
+    color: #1E293B !important;
+}
+
+/* Light mode specific overrides */
+body.light-mode aside,
+body.light-mode main header,
+body.light-mode aside.w-\[450px\] {
+    background-color: #FFFFFF !important;
+    border-color: #E2E8F0 !important;
+}
+
+body.light-mode .bg-\[#0F172A\]\/50,
+body.light-mode .bg-\[#0F172A\]\/30,
+body.light-mode .bg-\[#0F172A\]\/40,
+body.light-mode .bg-\[#0A0D14\] {
+    background-color: #FFFFFF !important;
+}
+
+body.light-mode .text-slate-200,
+body.light-mode .text-slate-300,
+body.light-mode .text-slate-400 {
+    color: #475569 !important;
+}
+
+body.light-mode .text-slate-500 {
+    color: #64748B !important;
+}
+
+body.light-mode .bg-slate-900,
+body.light-mode .bg-slate-900\/50,
+body.light-mode .bg-slate-900\/80 {
+    background-color: #F1F5F9 !important;
+}
+
+body.light-mode .border-slate-700,
+body.light-mode .border-slate-800 {
+    border-color: #CBD5E1 !important;
+}
+
+body.light-mode .border-slate-700\/50 {
+    border-color: #E2E8F0 !important;
+}
+
+body.light-mode input,
+body.light-mode select,
+body.light-mode textarea {
+    background-color: #F1F5F9 !important;
+    color: #1E293B !important;
+    border-color: #CBD5E1 !important;
+}
+
+body.light-mode #drop-zone {
+    border-color: #CBD5E1 !important;
+}
+
+body.light-mode #drop-zone:hover {
+    border-color: #0D9488 !important;
+    background-color: rgba(13, 148, 136, 0.05) !important;
+}
+
+body.light-mode .bg-slate-800\/50,
+body.light-mode .bg-slate-800\/80 {
+    background-color: #E2E8F0 !important;
+}
+
+body.light-mode button:not(.bg-gradient-to-r):not(.bg-\[#6366F1\]) {
+    color: #475569 !important;
+}
+
+body.light-mode #thinking-layer {
+    background: radial-gradient(circle at center, rgba(248, 250, 252, 0.95) 0%, #F8FAFC 100%) !important;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-teal);
+}
+
+/* Typography Enhancements */
+h1,
+h2,
+h3,
+button {
+    font-family: 'Outfit', sans-serif;
+}
+
+/* Glassmorphism Classes */
+.glass-panel {
+    background: var(--panel-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+}
+
+.font-serif-mode #report-paper {
+    font-family: 'Georgia', 'Times New Roman', serif;
+}
+
+.font-sans-mode #report-paper {
+    font-family: 'Inter', sans-serif;
+}
+
+#report-body[contenteditable="true"]:focus {
+    box-shadow: 0 0 0 2px rgba(0, 242, 255, 0.1);
+    border-radius: 4px;
+}
+
+/* Strategic Insights Styles */
+.insight-card {
+    border-left: 4px solid #6366F1;
+    background: #f8fafc;
+    padding: 1rem;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 1rem;
+}
+
+.health-score-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: #0F172A;
+    border-radius: 12px;
+    color: white;
+}
+
+.health-bar {
+    flex: 1;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.health-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #F87171, #FBBF24, #34D399);
+    transition: width 1s ease-in-out;
+}
+
+.badge-critical {
+    background: #FEE2E2;
+    color: #991B1B;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.badge-opportunity {
+    background: #ECFDF5;
+    color: #065F46;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.theme-transition {
+    transition: all 0.5s ease !important;
+}
+
+/* Animations */
+@keyframes bounce-slow {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.animate-bounce-slow {
+    animation: bounce-slow 3s ease-in-out infinite;
+}
+
+/* Interactive Elements */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    opacity: 0.5;
+    cursor: pointer;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+/* Live Paper Styles */
+#report-paper {
+    mask-image: linear-gradient(to bottom, black 95%, transparent 100%);
+    scrollbar-width: thin;
+    transition: all 0.4s ease;
+}
+
+#report-paper.size-letter {
+    aspect-ratio: 8.5 / 11;
+}
+
+#report-paper.size-legal {
+    aspect-ratio: 8.5 / 14;
+}
+
+#report-paper.size-a4 {
+    aspect-ratio: 210 / 297;
+}
+
+#report-paper h2 {
+    color: var(--bg-main);
+    border-left: 4px solid var(--accent-teal);
+    padding-left: 1rem;
+    margin: 2rem 0 1rem 0;
+}
+
+#report-paper p {
+    color: var(--text-main);
+}
+
+body:not(.light-mode) #report-paper p {
+    color: #444;
+    /* Keep paper text readable in dark mode (white paper) */
+}
+
+body.light-mode #report-paper p {
+    color: #333;
+}
+
+.chart-container {
+    position: relative;
+    margin: 20px 0;
+    height: 300px;
+    width: 100%;
+}
+
+/* Micro-interactions */
+button {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Security & Privacy Badge */
+#privacy-badge {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#privacy-badge:hover {
+    background: rgba(34, 197, 94, 0.2);
+    transform: translateY(-1px);
+}
+
+/* Contextual Chat Enhancements */
+#contextual-chat-area {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#contextual-chat-area:not(.active) {
+    opacity: 0.4;
+    filter: blur(2px);
+    pointer-events: none;
+}
+
+#contextual-chat-area.active {
+    opacity: 1;
+    filter: none;
+    pointer-events: auto;
+}
+
+/* Scrollbar refinement for chat */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.2);
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 242, 255, 0.3);
+}
+
+/* Data Trace / Source Highlighting */
+.data-trace-highlight {
+    background-color: rgba(255, 255, 0, 0.2);
+    border-bottom: 2px solid rgba(255, 255, 0, 0.5);
+    cursor: help;
+}
+
+/* Universal LED Status Indicators */
+.led-online {
+    background-color: #10B981 !important;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+}
+
+.led-offline {
+    background-color: #EF4444 !important;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+}
+
+.led-testing {
+    background-color: #F59E0B !important;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+    animation: led-pulse 1s infinite;
+}
+
+@keyframes led-pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
+}
+
+[data-industry="finance"] #report-paper {
+    border-left: 8px solid #1E293B;
+}
+
+[data-industry="sales"] #report-paper {
+    border-left: 8px solid #0D9488;
+}
+
+[data-industry="ops"] #report-paper {
+    border-left: 8px solid #F59E0B;
+}
+
+/* --- Responsive Design & Mobile Optimization --- */
+@media (max-width: 1024px) {
+    body {
+        flex-direction: column !important;
+        overflow-x: hidden !important;
+    }
+
+    #mobile-nav {
+        display: flex !important;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.5rem;
+        background: #0F172A;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    #mobile-menu-toggle {
+        display: block;
+        font-size: 1.25rem;
+        color: #00F2FF;
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+
+    aside,
+    main {
+        width: 100% !important;
+        max-width: 100% !important;
+        border: none !important;
+    }
+
+    aside:first-of-type {
+        position: fixed;
+        left: -100%;
+        top: 0;
+        height: 100vh;
+        z-index: 200;
+        transition: left 0.3s ease;
+        box-shadow: 20px 0 50px rgba(0, 0, 0, 0.5);
+        background: #0F172A;
+    }
+
+    aside:first-of-type.active {
+        left: 0;
+    }
+
+    main {
+        padding: 0 !important;
+    }
+
+    aside.w-\[450px\] {
+        border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+        height: auto !important;
+        min-height: 80vh;
+    }
+}
+
+#menu-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 150;
+    display: none;
+}
+
+#menu-overlay.active {
+    display: block;
+}

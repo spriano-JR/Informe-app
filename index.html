@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REPORT-MASTER PRO | BI Intelligence</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+    <!-- External Libraries (CDN) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <script src="ai-service.js"></script>
+</head>
+
+<body class="bg-[#05070A] text-slate-200 font-['Inter'] selection:bg-[#00F2FF]/30 overflow-hidden">
+
+    <div id="menu-overlay"></div>
+    <nav id="mobile-nav" class="hidden">
+        <div class="flex items-center space-x-3">
+            <div
+                class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#00F2FF] to-[#6366F1] flex items-center justify-center">
+                <i class="fas fa-robot text-white text-xs"></i>
+            </div>
+            <span class="font-bold tracking-tighter text-sm">REPORT-MASTER</span>
+        </div>
+        <button id="mobile-menu-toggle">
+            <i class="fas fa-bars"></i>
+        </button>
+    </nav>
+
+    <div class="flex h-screen w-full relative">
+        <!-- Thinking Layer / Overlay Loader -->
+        <div id="thinking-layer"
+            class="hidden absolute inset-0 z-50 bg-[#05070A]/80 backdrop-blur-md flex flex-col items-center justify-center transition-all duration-500">
+            <div class="relative w-24 h-24 mb-6">
+                <div class="absolute inset-0 border-4 border-[#00F2FF]/20 rounded-full"></div>
+                <div class="absolute inset-0 border-4 border-[#00F2FF] rounded-full border-t-transparent animate-spin">
+                </div>
+            </div>
+            <p id="thinking-status" class="text-[#00F2FF] font-['Outfit'] tracking-wider animate-pulse">Analizando
+                tendencias...</p>
+
+            <!-- Cancel Button -->
+            <button id="cancel-process"
+                class="mt-8 px-6 py-2 rounded-full border border-red-500/50 text-red-400 text-xs font-bold uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all">
+                Cancelar Proceso
+            </button>
+        </div>
+
+        <!-- Columna Izquierda (Configuración) -->
+        <aside
+            class="w-[250px] border-r border-slate-800 bg-[#0F172A]/50 backdrop-blur-xl flex flex-col p-6 space-y-8 overflow-y-auto">
+            <div class="brand">
+                <h1
+                    class="text-2xl font-bold font-['Outfit'] bg-gradient-to-r from-[#00F2FF] to-[#6366F1] bg-clip-text text-transparent">
+                    REPORT-MASTER</h1>
+                <p class="text-[10px] tracking-[0.2em] text-slate-500 mt-1 uppercase">Business Intelligence Pro</p>
+            </div>
+
+            <!-- Selector de Motor -->
+            <div class="space-y-3">
+                <label class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Motor de IA</label>
+                <div class="grid grid-cols-3 gap-1 bg-slate-900 border border-slate-700 p-1 rounded-lg">
+                    <button id="motor-ollama" class="py-2 text-xs rounded-md bg-[#6366F1] text-white">Ollama</button>
+                    <button id="motor-lmstudio" class="py-2 text-xs rounded-md hover:bg-slate-800 transition-colors">LM
+                        Studio</button>
+                    <button id="motor-api"
+                        class="py-2 text-xs rounded-md hover:bg-slate-800 transition-colors">API</button>
+                </div>
+
+                <!-- Universal Connection Verifier -->
+                <div class="flex items-center justify-between px-1">
+                    <div class="flex flex-col">
+                        <button id="verify-connection" title="Probar conexión con el motor seleccionado"
+                            class="text-[10px] font-bold text-slate-500 hover:text-[#00F2FF] uppercase tracking-widest transition-colors flex items-center space-x-2">
+                            <span>Verificar Conexión</span>
+                        </button>
+                    </div>
+                    <div id="connection-led"
+                        class="w-2 h-2 rounded-full bg-slate-700 shadow-[0_0_5px_rgba(0,0,0,0.5)] transition-all duration-300">
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between mb-1">
+                    <label class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Configuración
+                        API</label>
+                    <button id="toggle-api-visibility"
+                        class="text-[9px] text-[#6366F1] hover:underline flex items-center gap-1">
+                        <i class="fas fa-eye-slash"></i> Ocultar
+                    </button>
+                </div>
+                <!-- API Configuration (hidden by default) -->
+                <div id="api-config" class="hidden space-y-2">
+                    <input type="text" id="api-url" placeholder="URL de API (ej: https://api.openai.com/v1)"
+                        class="w-full bg-slate-900 border border-slate-700 text-xs p-2 rounded-md outline-none focus:border-[#00F2FF] transition-colors">
+                    <input type="password" id="api-key" placeholder="API Key"
+                        class="w-full bg-slate-900 border border-slate-700 text-xs p-2 rounded-md outline-none focus:border-[#00F2FF] transition-colors">
+                    <input type="text" id="api-model" placeholder="Modelo (ej: gpt-4, claude-3-opus)"
+                        class="w-full bg-slate-900 border border-slate-700 text-xs p-2 rounded-md outline-none focus:border-[#00F2FF] transition-colors">
+                </div>
+
+                <select id="model-select"
+                    class="w-full bg-slate-900 border border-slate-700 text-xs p-2 rounded-md outline-none focus:border-[#00F2FF] transition-colors">
+                    <option value="">Detectando modelos...</option>
+                </select>
+            </div>
+
+            <!-- Personalización de Texto -->
+            <div class="space-y-3">
+                <label class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Personalización</label>
+                <div class="space-y-2">
+                    <input type="text" id="custom-header" value="INFORME DE GESTIÓN" placeholder="Título del Encabezado"
+                        class="w-full bg-slate-900 border border-slate-700 text-xs p-2 rounded-md outline-none focus:border-[#00F2FF] transition-colors">
+                    <input type="text" id="custom-footer" value="Consultoría Estratégica"
+                        placeholder="Texto del Pie de Página"
+                        class="w-full bg-slate-900 border border-slate-700 text-xs p-2 rounded-md outline-none focus:border-[#00F2FF] transition-colors">
+                </div>
+            </div>
+
+            <!-- Nivel de Informe -->
+            <div class="space-y-3">
+                <label class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Nivel de Detalle</label>
+                <select id="report-level" title="Define la profundidad analítica del informe (NTU es el máximo nivel)"
+                    class="w-full bg-slate-900 border border-slate-700 text-xs p-2 rounded-md outline-none focus:border-[#00F2FF] transition-colors">
+                    <option value="basic">Básico (Resumen)</option>
+                    <option value="medium" selected>Medio (Estadístico)</option>
+                    <option value="pro">Profesional (Mckinsey Style)</option>
+                    <option value="ntu">INFORME NTU (Análisis Especializado)</option>
+                </select>
+            </div>
+
+            <!-- Vertical de Industria -->
+            <div class="space-y-3">
+                <label class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Vertical de
+                    Negocio</label>
+                <select id="industry-vertical" title="Adapta el lenguaje y análisis al sector seleccionado"
+                    class="w-full bg-slate-900 border border-slate-700 text-xs p-2 rounded-md outline-none focus:border-[#00F2FF] transition-colors">
+                    <option value="general">General (Estándar)</option>
+                    <option value="finance">Financiero (Capital/Flujo)</option>
+                    <option value="sales">Comercial (Ventas/Conversión)</option>
+                    <option value="ops">Operativo (Eficiencia/Suministro)</option>
+                </select>
+            </div>
+
+            <!-- Modo Histórico / Comparativo -->
+            <div class="flex items-center justify-between bg-slate-900/50 border border-slate-700 p-3 rounded-xl"
+                title="Habilita la comparación entre datos del periodo anterior vs actual">
+                <span class="text-[10px] text-slate-300">Modo Comparativo</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="comparative-mode-toggle" class="sr-only peer">
+                    <div
+                        class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-500">
+                    </div>
+                </label>
+            </div>
+
+            <!-- Unidad de Marca -->
+            <div class="space-y-3">
+                <label class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Identidad</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="relative group">
+                        <label for="logo-upload"
+                            class="flex flex-col items-center justify-center h-20 border-2 border-dashed border-slate-700 rounded-lg cursor-pointer hover:border-[#00F2FF] transition-all group-hover:bg-slate-800/50">
+                            <span class="text-[10px] text-slate-500">LOGO</span>
+                            <div id="logo-preview"
+                                class="hidden absolute inset-0 bg-slate-900 rounded-lg flex items-center justify-center p-2">
+                                <img src="" alt="logo" class="max-h-full max-w-full object-contain">
+                            </div>
+                        </label>
+                        <input type="file" id="logo-upload" class="hidden" accept="image/*">
+                    </div>
+                    <div class="relative group">
+                        <label for="sign-upload"
+                            class="flex flex-col items-center justify-center h-20 border-2 border-dashed border-slate-700 rounded-lg cursor-pointer hover:border-[#6366F1] transition-all group-hover:bg-slate-800/50">
+                            <span class="text-[10px] text-slate-500">FIRMA</span>
+                            <div id="sign-preview"
+                                class="hidden absolute inset-0 bg-slate-900 rounded-lg flex items-center justify-center p-2">
+                                <img src="" alt="firma" class="max-h-full max-w-full object-contain">
+                            </div>
+                        </label>
+                        <input type="file" id="sign-upload" class="hidden" accept="image/png">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gestión de Tiempo y Formato -->
+            <div class="space-y-3">
+                <label class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Periodo y Formato</label>
+                <div class="space-y-2">
+                    <input type="date" id="date-start"
+                        class="w-full bg-slate-900 border border-slate-700 text-xs p-2 rounded-md text-slate-300">
+                    <input type="date" id="date-end"
+                        class="w-full bg-slate-900 border border-slate-700 text-xs p-2 rounded-md text-slate-300">
+                    <select id="page-size"
+                        class="w-full bg-slate-900 border border-slate-700 text-xs p-2 rounded-md outline-none focus:border-[#00F2FF] transition-colors">
+                        <option value="letter">Tamaño Carta (Letter)</option>
+                        <option value="legal">Tamaño Oficio (Legal)</option>
+                        <option value="a4" selected>Tamaño A4</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Estilo y Tipografía -->
+            <div class="space-y-3">
+                <label class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Estilo de Informe</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button id="font-sans" title="Tipografía moderna sin serifas (Inter)"
+                        class="py-2 text-[10px] rounded-md bg-[#6366F1] text-white font-sans">SANS-SERIF</button>
+                    <button id="font-serif" title="Tipografía clásica y elegante con serifas (Georgia)"
+                        class="py-2 text-[10px] rounded-md hover:bg-slate-800 transition-colors font-serif">SERIF</button>
+                </div>
+            </div>
+
+            <!-- Asistente de Voz Pro (Legacy/Removed Duplicates) -->
+            <div class="space-y-3 hidden">
+                <label class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Asistente de Voz</label>
+                <div class="flex items-center justify-between bg-slate-900/50 border border-slate-700 p-3 rounded-xl">
+                    <span class="text-[10px] text-slate-300">Modo Voz</span>
+                </div>
+            </div>
+
+            <!-- Selector de Salida -->
+            <div class="space-y-3 flex-1">
+                <label class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Exportar a</label>
+                <div class="space-y-2 text-xs">
+                    <label class="flex items-center space-x-2 cursor-pointer group">
+                        <input type="checkbox" checked
+                            class="form-checkbox bg-slate-900 border-slate-700 text-[#00F2FF] rounded">
+                        <span class="group-hover:text-white transition-colors">Microsoft Word</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer group">
+                        <input type="checkbox" checked
+                            class="form-checkbox bg-slate-900 border-slate-700 text-[#00F2FF] rounded">
+                        <span class="group-hover:text-white transition-colors">Adobe PDF</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer group">
+                        <input type="checkbox" checked
+                            class="form-checkbox bg-slate-900 border-slate-700 text-[#00F2FF] rounded">
+                        <span class="group-hover:text-white transition-colors">Microsoft Excel</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer group">
+                        <input type="checkbox" checked
+                            class="form-checkbox bg-slate-900 border-slate-700 text-[#00F2FF] rounded">
+                        <span class="group-hover:text-white transition-colors">PowerPoint</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-slate-800">
+                <p class="text-[9px] text-slate-500 italic">40 Años de maestría en BI</p>
+            </div>
+        </aside>
+
+        <!-- Columna Central (Interacción) -->
+        <main class="flex-1 flex flex-col relative">
+            <header
+                class="h-[60px] border-b border-slate-800 flex items-center justify-between px-8 bg-[#0F172A]/30 backdrop-blur-md">
+                <div class="flex items-center space-x-6">
+                    <div class="flex items-center space-x-4">
+                        <!-- Privacy Indicator -->
+                        <div id="privacy-badge" title="Tus datos no salen de este equipo (Procesamiento Local)"
+                            class="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/30 cursor-help">
+                            <div class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+                            <span class="text-[9px] font-bold text-green-400 uppercase tracking-tighter">🔒 Local
+                                Secure</span>
+                        </div>
+                        <div class="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
+                        <span class="text-xs font-semibold tracking-wider text-slate-400">ESTADO DEL SISTEMA: <span
+                                class="text-green-500">LISTO</span></span>
+                    </div>
+                    <button id="theme-toggle"
+                        class="p-2 rounded-full bg-slate-900 border border-slate-700 hover:border-[#00F2FF] transition-all group"
+                        title="Cambiar entre modo claro y oscuro">
+                        <svg id="sun-icon" class="w-5 h-5 text-yellow-400 hidden" fill="currentColor"
+                            viewBox="0 0 20 20">
+                            <path
+                                d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z">
+                            </path>
+                        </svg>
+                        <svg id="moon-icon" class="w-5 h-5 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="text-[10px] text-slate-500" id="current-time">26 ENE 2026 - 01:17</div>
+            </header>
+
+            <div class="p-8 flex flex-col flex-1 overflow-y-auto space-y-8">
+                <!-- Zona Multimodal -->
+                <div class="space-y-4">
+                    <div id="drop-zone"
+                        class="h-64 border-2 border-dashed border-slate-700 rounded-3xl flex flex-col items-center justify-center p-8 transition-all hover:border-[#00F2FF]/50 hover:bg-[#00F2FF]/5 group cursor-pointer relative overflow-hidden"
+                        title="Arrastra tus datos aquí. Si el Modo Comparativo está activo, sube primero los archivos antiguos y luego los nuevos.">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-tr from-[#00F2FF]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                        </div>
+                        <div class="relative z-10 flex flex-col items-center animate-bounce-slow">
+                            <svg class="w-12 h-12 text-slate-500 group-hover:text-[#00F2FF] transition-colors mb-4"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+                                </path>
+                            </svg>
+                            <p class="text-lg font-['Outfit'] font-semibold text-slate-300">Arrastra tus datos aquí</p>
+                            <p class="text-xs text-slate-500 mt-2">Soporta múltiples archivos para análisis combinado
+                            </p>
+                        </div>
+                        <input type="file" id="file-input" class="hidden" accept=".csv,.txt,.xlsx,.pdf,.docx" multiple>
+                    </div>
+
+                    <!-- Listas de Archivos (Actual vs Histórico) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label id="current-files-label"
+                                class="text-[10px] uppercase font-bold text-slate-500 px-1 hidden">Archivos de Periodo
+                                Actual</label>
+                            <div id="file-list" class="flex flex-wrap gap-2 min-h-[40px]"></div>
+                        </div>
+                        <div id="historical-container" class="space-y-2 hidden">
+                            <label class="text-[10px] uppercase font-bold text-purple-400 px-1">Archivos de Periodo
+                                Anterior</label>
+                            <div id="historical-file-list" class="flex flex-wrap gap-2 min-h-[40px]"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botón de Acción -->
+                <div class="flex flex-col space-y-4">
+                    <label class="text-xs uppercase tracking-widest text-slate-500 font-bold px-2">Información Adicional
+                        (Opcional)</label>
+                    <textarea id="extra-notes" spellcheck="true"
+                        placeholder="Escribe aquí cualquier detalle adicional que quieras incluir o enfatizar en el informe..."
+                        class="w-full bg-slate-900/50 border border-slate-700/50 rounded-2xl p-4 text-sm outline-none focus:border-[#00F2FF]/50 transition-all h-24 resize-none"></textarea>
+                </div>
+
+                <div class="flex items-center justify-center space-x-6">
+                    <button id="mic-btn"
+                        class="w-16 h-16 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center hover:border-[#6366F1] hover:text-[#6366F1] transition-all group relative">
+                        <div
+                            class="absolute inset-0 rounded-full bg-[#6366F1]/10 scale-0 group-hover:scale-125 transition-transform duration-500">
+                        </div>
+                        <svg class="w-6 h-6 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-20a3 3 0 00-3 3v8a3 3 0 006 0V5a3 3 0 00-3-3z">
+                            </path>
+                        </svg>
+                    </button>
+
+                    <button id="generate-report"
+                        class="flex-1 max-w-[400px] h-16 rounded-2xl bg-gradient-to-r from-[#00949D] to-[#00949D]/80 text-[#00F2FF] font-['Outfit'] font-bold text-lg tracking-wider border border-[#00F2FF]/30 shadow-[0_0_20px_rgba(0,242,255,0.2)] hover:shadow-[0_0_40px_rgba(0,242,255,0.4)] hover:scale-[1.02] transition-all relative overflow-hidden group">
+                        <span class="relative z-10">ANALIZAR Y GENERAR REPORTE ⚡</span>
+                        <div
+                            class="absolute inset-0 bg-white/10 -translate-x-full group-hover:translate-x-full transition-transform duration-1000">
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Chat Contextual Inteligente -->
+                <div id="contextual-chat-area"
+                    class="flex-1 flex flex-col bg-[#0F172A]/40 rounded-3xl border border-slate-800/50 p-6 opacity-50 blur-[2px] transition-all pointer-events-none"
+                    title="Realiza preguntas específicas sobre el informe generado">
+                    <div class="flex items-center justify-between mb-4 px-2">
+                        <span class="text-[10px] font-bold text-[#00F2FF] uppercase tracking-widest">Pregúntale al
+                            Informe (Chat Contextual)</span>
+                        <div class="w-1.5 h-1.5 rounded-full bg-slate-600" id="chat-online-indicator"></div>
+                    </div>
+                    <div class="flex-1 overflow-y-auto space-y-4 mb-4 custom-scrollbar" id="chat-messages">
+                        <div
+                            class="bg-slate-800/50 p-3 rounded-2xl rounded-tl-none mr-auto max-w-[80%] text-sm text-slate-500 italic">
+                            Genera un informe primero para habilitar el asistente de consulta en tiempo real.
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <input type="text" id="chat-input" placeholder="Ej: ¿Qué causó el descenso en el margen?"
+                            class="w-full bg-slate-900/80 border border-slate-700/50 rounded-2xl p-4 pr-12 text-sm outline-none focus:border-[#00F2FF]/50 transition-all">
+                        <button id="chat-send-btn"
+                            class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-[#00F2FF] transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Columna Derecha (Previsualización) -->
+        <aside class="w-[450px] border-l border-slate-800 bg-[#0A0D14] flex flex-col p-6 shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xs uppercase tracking-[0.3em] text-slate-500 font-bold">Live Paper Preview</h2>
+                <!-- Read Aloud Controls -->
+                <div class="flex items-center space-x-2">
+                    <button id="read-aloud-btn" title="Leer en voz alta"
+                        class="p-2 rounded-lg bg-slate-900 border border-slate-700 hover:border-[#00F2FF] transition-all group">
+                        <svg class="w-4 h-4 text-slate-400 group-hover:text-[#00F2FF]" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z">
+                            </path>
+                        </svg>
+                    </button>
+                    <button id="pause-aloud-btn" title="Pausar" disabled
+                        class="p-2 rounded-lg bg-slate-900 border border-slate-700 hover:border-yellow-500 transition-all group disabled:opacity-50 disabled:cursor-not-allowed">
+                        <svg class="w-4 h-4 text-slate-400 group-hover:text-yellow-500" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </button>
+                    <button id="stop-aloud-btn" title="Detener" disabled
+                        class="p-2 rounded-lg bg-slate-900 border border-slate-700 hover:border-red-500 transition-all group disabled:opacity-50 disabled:cursor-not-allowed">
+                        <svg class="w-4 h-4 text-slate-400 group-hover:text-red-500" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex-1 relative bg-slate-900/50 rounded-xl overflow-hidden p-[2px] mb-6">
+                <!-- A4 Simulation Container -->
+                <div class="h-full w-full bg-white rounded-lg overflow-y-auto p-12 text-slate-900 shadow-inner group"
+                    id="report-paper">
+                    <!-- Report Content Start -->
+                    <div class="flex justify-between items-start mb-8 border-b-2 border-[#05070A] pb-4">
+                        <div id="paper-logo"
+                            class="h-16 w-16 grayscale bg-slate-100 flex items-center justify-center text-[10px] text-slate-400 italic">
+                            LOGO</div>
+                        <div class="text-right">
+                            <h3 class="text-xl font-bold uppercase" id="report-title">INFORME DE GESTIÓN</h3>
+                            <p class="text-xs text-slate-500" id="report-date">ENERO 2026</p>
+                        </div>
+                    </div>
+
+                    <div id="report-body" class="space-y-6 text-sm leading-relaxed outline-none" contenteditable="true">
+                        <div class="animate-pulse space-y-3">
+                            <div class="h-4 bg-slate-200 rounded w-3/4"></div>
+                            <div class="h-4 bg-slate-200 rounded"></div>
+                            <div class="h-32 bg-slate-100 rounded-xl"></div>
+                            <div class="h-4 bg-slate-200 rounded w-5/6"></div>
+                        </div>
+                    </div>
+
+                    <div id="report-footer" class="mt-12 pt-8 border-t border-slate-200 flex flex-col items-center">
+                        <div id="paper-signature"
+                            class="h-20 w-40 grayscale border-b border-slate-400 mb-2 flex items-center justify-center text-[10px] text-slate-400 italic">
+                            FIRMA DIGITAL</div>
+                        <p class="text-[10px] font-bold uppercase">Consultoría Estratégica</p>
+                        <p class="text-[9px] text-slate-400" id="current-date-footer">26/01/2026</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones de Exportación -->
+            <div class="space-y-3">
+                <!-- Dedicated Word Download Button -->
+                <button id="download-word-btn"
+                    class="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] border border-blue-500/30 p-4 rounded-xl hover:shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all group">
+                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"></path>
+                        <path d="M14 2v6h6"></path>
+                        <path d="M12 18v-6"></path>
+                        <path d="M9 15l3 3 3-3"></path>
+                    </svg>
+                    <span class="text-sm font-bold text-white uppercase tracking-wider">Descargar Word</span>
+                </button>
+
+                <!-- Operator Health Score (Side Panel Only) -->
+                <div id="side-health-score"
+                    class="hidden bg-slate-900 border border-slate-700 p-4 rounded-xl space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Salud de
+                            Negocio</span>
+                        <span id="side-health-value" class="text-lg font-bold text-[#00F2FF]">--%</span>
+                    </div>
+                    <div class="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                        <div id="side-health-fill"
+                            class="h-full bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 transition-all duration-1000"
+                            style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <button
+                        class="flex items-center justify-center space-x-2 bg-slate-900 border border-slate-700 p-3 rounded-xl hover:bg-slate-800 hover:border-[#00F2FF] transition-all group"
+                        title="Exportar a Word">
+                        <span
+                            class="text-xs font-bold text-slate-400 group-hover:text-white uppercase tracking-wider">DOCX</span>
+                    </button>
+                    <button
+                        class="flex items-center justify-center space-x-2 bg-slate-900 border border-slate-700 p-3 rounded-xl hover:bg-slate-800 border-red-500/30 hover:border-red-500/80 transition-all group"
+                        title="Exportar a PDF">
+                        <span
+                            class="text-xs font-bold text-slate-400 group-hover:text-white uppercase tracking-wider">PDF</span>
+                    </button>
+                    <button
+                        class="flex items-center justify-center space-x-2 bg-slate-900 border border-slate-700 p-3 rounded-xl hover:bg-slate-800 border-green-500/30 hover:border-green-500/80 transition-all group"
+                        title="Exportar a Excel">
+                        <span
+                            class="text-xs font-bold text-slate-400 group-hover:text-white uppercase tracking-wider">XLSX</span>
+                    </button>
+                    <button
+                        class="flex items-center justify-center space-x-2 bg-slate-900 border border-slate-700 p-3 rounded-xl hover:bg-slate-800 border-orange-500/30 hover:border-orange-500/80 transition-all group"
+                        title="Exportar a PowerPoint">
+                        <span
+                            class="text-xs font-bold text-slate-400 group-hover:text-white uppercase tracking-wider">PPTX</span>
+                    </button>
+                </div>
+        </aside>
+    </div>
+
+    <script src="export-service.js"></script>
+    <script src="read-aloud.js"></script>
+    <script src="voice-assistant.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
