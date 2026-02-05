@@ -394,7 +394,7 @@ button {
         display: flex !important;
         align-items: center;
         justify-content: space-between;
-        padding: 1rem 1.5rem;
+        padding: 0.75rem 1.25rem;
         background: #0F172A;
         border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         position: sticky;
@@ -455,3 +455,5 @@ button {
 #menu-overlay.active {
     display: block;
 }
+#mobile-nav { display: none; }
+@media (max-width: 1024px) { #mobile-nav { display: flex !important; } }

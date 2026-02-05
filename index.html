@@ -31,7 +31,7 @@
 <body class="bg-[#05070A] text-slate-200 font-['Inter'] selection:bg-[#00F2FF]/30 overflow-hidden">
 
     <div id="menu-overlay"></div>
-    <nav id="mobile-nav" class="hidden">
+    <nav id="mobile-nav">
         <div class="flex items-center space-x-3">
             <div
                 class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#00F2FF] to-[#6366F1] flex items-center justify-center">
@@ -39,7 +39,9 @@
             </div>
             <span class="font-bold tracking-tighter text-sm">REPORT-MASTER</span>
         </div>
-        <button id="mobile-menu-toggle">
+        <button id="mobile-menu-toggle"
+            class="flex items-center space-x-2 bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-700">
+            <span class="text-[10px] font-bold uppercase tracking-wider">Opciones</span>
             <i class="fas fa-bars"></i>
         </button>
     </nav>
